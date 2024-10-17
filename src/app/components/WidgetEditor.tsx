@@ -1,7 +1,8 @@
 "use client";
-
+import { useCallback } from "react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const WidgetEditor = () => {
   const [bgColor, setBgColor] = useState("#3CC62A");
@@ -15,13 +16,7 @@ const WidgetEditor = () => {
   const [generatedScript, setGeneratedScript] = useState("");
   const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    if (ctaUrl) {
-      generateScript();
-    }
-  }, [bgColor, messages, logoUrl, ctaUrl]);
-
-  const generateScript = () => {
+  const generateScript = useCallback(() => {
     const escapedMessages = messages.replace(/\n/g, "\\n").replace(/'/g, "\\'");
     const hasMessages = messages.trim() !== "";
 
@@ -84,7 +79,13 @@ const WidgetEditor = () => {
     })();
     `;
     setGeneratedScript(script);
-  };
+  }, [bgColor, messages, logoUrl, ctaUrl]);
+
+  useEffect(() => {
+    if (ctaUrl) {
+      generateScript();
+    }
+  }, [ctaUrl, generateScript]);
 
   const addMessage = () => {
     if (newMessage.trim() !== "") {
@@ -106,8 +107,8 @@ const WidgetEditor = () => {
     }
   };
 
-  const handleImageLoad = (e: any) => {
-    const img = e.target;
+  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
     const hasBackground =
       img.naturalWidth === img.width && img.naturalHeight === img.height;
     setHasImageBackground(hasBackground);
@@ -223,11 +224,13 @@ const WidgetEditor = () => {
             ease: "easeInOut",
           }}
         >
-          <img
+          <Image
             src={logoUrl}
-            alt=""
-            className="object-cover w-full h-full"
+            alt="LOGO"
+            className="object-cover "
             onLoad={handleImageLoad}
+            width={100}
+            height={100}
           />
         </motion.button>
         {isHovered && (
