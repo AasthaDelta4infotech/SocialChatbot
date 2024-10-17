@@ -7,7 +7,7 @@ import whatsappLogo from "../../../public/images/whatsapp.jpg"; // Import the im
 
 const WidgetEditor = () => {
   const [bgColor, setBgColor] = useState("#3CC62A");
-  const [messages, setMessages] = useState("");
+  const [messages, setMessages] = useState<string[]>([]);
   const [newMessage, setNewMessage] = useState("Hi");
   const [hasImageBackground, setHasImageBackground] = useState(false);
   const [logoUrl, setLogoUrl] = useState(
@@ -22,8 +22,7 @@ const WidgetEditor = () => {
   };
 
   const generateScript = useCallback(() => {
-    const escapedMessages = messages.replace(/\n/g, "\\n").replace(/'/g, "\\'");
-    const hasMessages = messages.trim() !== "";
+    const hasMessages = messages.length > 0;
 
     const script = `
     (() => {
@@ -56,7 +55,7 @@ const WidgetEditor = () => {
       ${
         hasMessages
           ? `
-      '${escapedMessages}'.split('\\n').forEach(m => {
+      [${messages.map((m) => `'${m}'`).join(",")}].forEach(m => {
         const d = document.createElement('div');
         d.className = 'm';
         d.textContent = m.trim();
@@ -94,10 +93,7 @@ const WidgetEditor = () => {
 
   const addMessage = () => {
     if (newMessage.trim() !== "") {
-      setMessages((prevMessages) =>
-        prevMessages ? `${prevMessages}\n${newMessage}` : newMessage
-      );
-
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setNewMessage("");
     } else {
       alert("Please enter a message");
@@ -198,15 +194,14 @@ const WidgetEditor = () => {
       </div>
 
       <div className="fixed bottom-64 right-10  flex justify-end items-end flex-col">
-        {messages &&
-          messages.split("\n").map((msg, index) => (
-            <div
-              key={index}
-              className="bg-white shadow-xl shadow-black/20 w-fit p-2 text-black rounded-md my-2 cursor-pointer"
-            >
-              {msg.trim()}
-            </div>
-          ))}
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className="bg-white shadow-xl shadow-black/20 w-fit p-2 text-black rounded-md my-2 cursor-pointer"
+          >
+            {msg.trim()}
+          </div>
+        ))}
       </div>
 
       <motion.div
