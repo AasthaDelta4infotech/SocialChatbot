@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import whatsappLogo from "../../../public/images/whatsapp.jpg"; // Import the image
 
 const WidgetEditor = () => {
   const [bgColor, setBgColor] = useState("#3CC62A");
@@ -15,6 +16,10 @@ const WidgetEditor = () => {
   const [ctaUrl, setCtaUrl] = useState("https://www.google.co.in/");
   const [generatedScript, setGeneratedScript] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+
+  const isExternalUrl = (url: string) => {
+    return url.startsWith("http://") || url.startsWith("https://");
+  };
 
   const generateScript = useCallback(() => {
     const escapedMessages = messages.replace(/\n/g, "\\n").replace(/'/g, "\\'");
@@ -224,14 +229,23 @@ const WidgetEditor = () => {
             ease: "easeInOut",
           }}
         >
-          <Image
-            src={logoUrl}
-            alt="LOGO"
-            className="object-cover "
-            onLoad={handleImageLoad}
-            width={100}
-            height={100}
-          />
+          {logoUrl && isExternalUrl(logoUrl) ? (
+            <img
+              src={logoUrl}
+              alt="LOGO"
+              className="object-cover w-full h-full"
+              onLoad={handleImageLoad}
+            />
+          ) : (
+            <Image
+              src={logoUrl || whatsappLogo}
+              alt="LOGO"
+              className="object-cover"
+              onLoad={handleImageLoad}
+              width={100}
+              height={100}
+            />
+          )}
         </motion.button>
         {isHovered && (
           <motion.div
